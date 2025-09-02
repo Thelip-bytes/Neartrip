@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <!-- Animated gradient definitions -->
+    <linearGradient id="logo-gradient-1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B5CF6;stop-opacity:1">
+        <animate attributeName="stop-color" values="#8B5CF6;#A855F7;#8B5CF6" dur="3s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="50%" style="stop-color:#EC4899;stop-opacity:1">
+        <animate attributeName="stop-color" values="#EC4899;#F472B6;#EC4899" dur="3s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="100%" style="stop-color:#06B6D4;stop-opacity:1">
+        <animate attributeName="stop-color" values="#06B6D4;#22D3EE;#06B6D4" dur="3s" repeatCount="indefinite"/>
+      </stop>
+    </linearGradient>
+    
+    <linearGradient id="logo-gradient-2" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#06B6D4;stop-opacity:1">
+        <animate attributeName="stop-color" values="#06B6D4;#22D3EE;#06B6D4" dur="3s" repeatCount="indefinite" begin="1s"/>
+      </stop>
+      <stop offset="50%" style="stop-color:#8B5CF6;stop-opacity:1">
+        <animate attributeName="stop-color" values="#8B5CF6;#A855F7;#8B5CF6" dur="3s" repeatCount="indefinite" begin="1s"/>
+      </stop>
+      <stop offset="100%" style="stop-color:#EC4899;stop-opacity:1">
+        <animate attributeName="stop-color" values="#EC4899;#F472B6;#EC4899" dur="3s" repeatCount="indefinite" begin="1s"/>
+      </stop>
+    </linearGradient>
+    
+    <!-- Glow filter -->
+    <filter id="logo-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <!-- Shadow filter -->
+    <filter id="logo-shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.2"/>
+    </filter>
+    
+    <!-- Clip path for geometric shape -->
+    <clipPath id="logo-clip">
+      <polygon points="100,20 170,60 170,140 100,180 30,140 30,60"/>
+    </clipPath>
+  </defs>
+  
+  <!-- Background circle with subtle animation -->
+  <circle cx="100" cy="100" r="95" fill="url(#logo-gradient-1)" opacity="0.1" filter="url(#logo-glow)">
+    <animate attributeName="r" values="95;98;95" dur="4s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Main hexagon shape -->
+  <g filter="url(#logo-shadow)">
+    <!-- Outer hexagon -->
+    <polygon points="100,25 165,65 165,135 100,175 35,135 35,65" 
+             fill="url(#logo-gradient-1)" 
+             stroke="url(#logo-gradient-2)" 
+             stroke-width="2"
+             filter="url(#logo-glow)">
+      <animateTransform attributeName="transform" 
+                        type="rotate" 
+                        values="0 100 100;360 100 100" 
+                        dur="20s" 
+                        repeatCount="indefinite"/>
+    </polygon>
+    
+    <!-- Inner geometric pattern -->
+    <g clip-path="url(#logo-clip)">
+      <!-- Travel path lines -->
+      <path d="M 50 50 Q 100 30 150 50 T 150 150 Q 100 170 50 150 T 50 50" 
+            fill="none" 
+            stroke="rgba(255,255,255,0.3)" 
+            stroke-width="2" 
+            stroke-dasharray="5,5">
+        <animate attributeName="stroke-dashoffset" values="0;10" dur="2s" repeatCount="indefinite"/>
+      </path>
+      
+      <!-- Center dot -->
+      <circle cx="100" cy="100" r="8" fill="rgba(255,255,255,0.8)">
+        <animate attributeName="r" values="8;12;8" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      
+      <!-- Orbiting dots -->
+      <circle cx="100" cy="40" r="3" fill="rgba(255,255,255,0.6)">
+        <animateTransform attributeName="transform" 
+                          type="rotate" 
+                          values="0 100 100;360 100 100" 
+                          dur="8s" 
+                          repeatCount="indefinite"/>
+      </circle>
+      
+      <circle cx="160" cy="100" r="3" fill="rgba(255,255,255,0.6)">
+        <animateTransform attributeName="transform" 
+                          type="rotate" 
+                          values="120 100 100;480 100 100" 
+                          dur="8s" 
+                          repeatCount="indefinite"/>
+      </circle>
+      
+      <circle cx="100" cy="160" r="3" fill="rgba(255,255,255,0.6)">
+        <animateTransform attributeName="transform" 
+                          type="rotate" 
+                          values="240 100 100;600 100 100" 
+                          dur="8s" 
+                          repeatCount="indefinite"/>
+      </circle>
+    </g>
+    
+    <!-- Letter N overlay -->
+    <text x="100" y="110" 
+          font-family="Arial, sans-serif" 
+          font-size="48" 
+          font-weight="bold" 
+          text-anchor="middle" 
+          fill="rgba(255,255,255,0.9)" 
+          filter="url(#logo-glow)">
+      N
+    </text>
+  </g>
+  
+  <!-- Subtle pulsing ring -->
+  <circle cx="100" cy="100" r="90" fill="none" stroke="url(#logo-gradient-2)" stroke-width="1" opacity="0.3">
+    <animate attributeName="r" values="90;95;90" dur="3s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.3;0.6;0.3" dur="3s" repeatCount="indefinite"/>
+  </circle>
+</svg>

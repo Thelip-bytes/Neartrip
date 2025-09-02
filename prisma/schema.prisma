@@ -1,0 +1,242 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// User Management
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  username      String?   @unique
+  name          String?
+  bio           String?
+  avatar        String?
+  coverImage    String?
+  website       String?
+  instagram     String?
+  twitter       String?
+  location      String?
+  isVerified    Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  posts         Post[]
+  likes         Like[]
+  comments      Comment[]
+  shares        Share[]
+  savedPlaces   SavedPlace[]
+  follows       Follow[]  @relation("UserFollows")
+  followers     Follow[]  @relation("UserFollowers")
+  notifications Notification[]
+
+  @@map("users")
+}
+
+// Places/Spots
+model Place {
+  id              String    @id @default(cuid())
+  name            String
+  description     String?
+  category        PlaceCategory
+  tags            String?   // JSON string array of tags
+  location        String
+  latitude        Float?
+  longitude       Float?
+  address         String?
+  phone           String?
+  website         String?
+  bestTimeToVisit String?   // Description of best time to visit
+  ticketInfo      String?   // Entry fee, ticket requirements, etc.
+  openingHours    String?   // JSON string with opening hours
+  isVerified      Boolean   @default(false)
+  isCurated       Boolean   @default(true)  // Handpicked by our team
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  posts           Post[]
+  savedPlaces     SavedPlace[]
+  media           PlaceMedia[]
+
+  @@map("places")
+}
+
+// Place Media (Photos/Videos)
+model PlaceMedia {
+  id        String      @id @default(cuid())
+  placeId   String
+  type      MediaType   // IMAGE or VIDEO
+  url       String
+  caption   String?
+  isPrimary Boolean     @default(false)
+  createdAt DateTime    @default(now())
+
+  place     Place       @relation(fields: [placeId], references: [id], onDelete: Cascade)
+
+  @@map("place_media")
+}
+
+// Posts with media
+model Post {
+  id          String      @id @default(cuid())
+  caption     String?
+  location    String?
+  placeId     String?     // Optional place tagging
+  authorId    String
+  isReel      Boolean     @default(false)  // For video reels
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relations
+  author      User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  place       Place?      @relation(fields: [placeId], references: [id])
+  media       PostMedia[]
+  likes       Like[]
+  comments    Comment[]
+  shares      Share[]
+
+  @@map("posts")
+}
+
+// Post Media (Photos/Videos)
+model PostMedia {
+  id        String      @id @default(cuid())
+  postId    String
+  type      MediaType   // IMAGE or VIDEO
+  url       String
+  caption   String?
+  order     Int         @default(0)
+  createdAt DateTime    @default(now())
+
+  post      Post        @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@map("post_media")
+}
+
+// Social Interactions
+model Like {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@map("likes")
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  userId    String
+  postId    String
+  parentId  String?  // For nested comments
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies   Comment[] @relation("CommentReplies")
+
+  @@map("comments")
+}
+
+model Share {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  platform  String?  // e.g., "instagram", "twitter", "copy_link"
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@map("shares")
+}
+
+// User Following System
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String   // User who is following
+  followingId String   // User who is being followed
+  createdAt   DateTime @default(now())
+
+  follower    User     @relation("UserFollows", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("UserFollowers", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@map("follows")
+}
+
+// Saved Places (Bookmarks)
+model SavedPlace {
+  id        String   @id @default(cuid())
+  userId    String
+  placeId   String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  place     Place    @relation(fields: [placeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, placeId])
+  @@map("saved_places")
+}
+
+// Notifications
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  message   String
+  data      String?          // JSON string for additional data
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+// Enums
+enum PlaceCategory {
+  NATURE
+  CITY_SPOT
+  LAKE
+  CAFE
+  RESTAURANT
+  MUSEUM
+  PARK
+  BEACH
+  MOUNTAIN
+  HISTORICAL
+  ENTERTAINMENT
+  SHOPPING
+  ADVENTURE
+  OTHER
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+enum NotificationType {
+  LIKE
+  COMMENT
+  FOLLOW
+  SHARE
+  MENTION
+  SYSTEM
+}
